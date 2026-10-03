@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Online Quiz Portal</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f6f9;
+            font-family: Arial, sans-serif;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+        }
+
+        .login-card {
+            max-width: 500px;
+            margin: 70px auto;
+        }
+
+        .option {
+            border: 1px solid #ddd;
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .option:hover {
+            background: #f0f4ff;
+        }
+
+        .timer {
+            background: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media(max-width:576px) {
+            .dashboard-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+
+<!-- =====================================================
+                     LOGIN PAGE
+===================================================== -->
+
+<div id="loginPage" class="container">
+
+    <div class="card shadow login-card">
+
+        <div class="card-body p-4">
+
+            <h2 class="text-center mb-4">
+                Online Quiz Portal
+            </h2>
+
+            <div class="text-center mb-4">
+
+                <button class="btn btn-primary"
+                        onclick="studentLoginPage()">
+                    Student
+                </button>
+
+                <button class="btn btn-dark"
+                        onclick="adminLoginPage()">
+                    Admin
+                </button>
+
+            </div>
+
+
+            <!-- Student Login -->
+
+            <div id="studentLogin">
+
+                <h4>Student Login</h4>
+
+                <input type="text"
+                       id="studentName"
+                       class="form-control mb-3"
+                       placeholder="Student Name">
+
+                <input type="text"
+                       id="studentId"
+                       class="form-control mb-3"
+                       placeholder="Student ID">
+
+                <button class="btn btn-success w-100"
+                        onclick="studentLogin()">
+                    Login
+                </button>
+
+            </div>
+
+
+            <!-- Admin Login -->
+
+            <div id="adminLogin" style="display:none">
+
+                <h4>Admin Login</h4>
+
+                <input type="text"
+                       id="adminUsername"
+                       class="form-control mb-3"
+                       placeholder="Username">
+
+                <input type="password"
+                       id="adminPassword"
+                       class="form-control mb-3"
+                       placeholder="Password">
+
+                <button class="btn btn-dark w-100"
+                        onclick="adminLogin()">
+                    Login
+                </button>
+
+                <small class="text-muted">
+                    Demo: admin / admin123
+                </small>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- =====================================================
+                  STUDENT DASHBOARD
+===================================================== -->
+
+<div id="studentDashboard"
+     class="container mt-4"
+     style="display:none">
+
+    <div class="dashboard-header mb-4">
+
+        <h2>Student Dashboard</h2>
+
+        <button class="btn btn-danger"
+                onclick="logout()">
+            Logout
+        </button>
+
+    </div>
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <h4>Available Exams</h4>
+
+            <div id="examList"></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+                    INSTRUCTIONS
+===================================================== -->
+
+<div id="instructionsPage"
+     class="container mt-5"
+     style="display:none">
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <h2 id="instructionTitle"></h2>
+
+            <hr>
+
+            <h5>Instructions</h5>
+
+            <ul>
+                <li>Read each question carefully.</li>
+                <li>Select one correct answer.</li>
+                <li>Use Next and Previous buttons.</li>
+                <li>The exam will auto-submit when time ends.</li>
+                <li>Do not refresh the page during the exam.</li>
+            </ul>
+
+            <button class="btn btn-success"
+                    onclick="startQuiz()">
+                Start Exam
+            </button>
+
+            <button class="btn btn-secondary"
+                    onclick="showStudentDashboard()">
+                Back
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+                       QUIZ
+===================================================== -->
+
+<div id="quizPage"
+     class="container mt-4"
+     style="display:none">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h3 id="quizTitle"></h3>
+
+        <div class="timer">
+            Time:
+            <span id="timer">00:00</span>
+        </div>
+
+    </div>
+
+
+    <div class="progress mb-4">
+
+        <div id="progressBar"
+             class="progress-bar"
+             style="width:0%">
+        </div>
+
+    </div>
+
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <h6 id="questionNumber"></h6>
+
+            <h4 id="questionText"
+                class="mb-4">
+            </h4>
+
+            <div id="options"></div>
+
+        </div>
+
+    </div>
+
+
+    <div class="d-flex justify-content-between mt-3">
+
+        <button id="previousBtn"
+                class="btn btn-secondary"
+                onclick="previousQuestion()">
+            Previous
+        </button>
+
+        <button id="nextBtn"
+                class="btn btn-primary"
+                onclick="nextQuestion()">
+            Next
+        </button>
+
+        <button id="submitBtn"
+                class="btn btn-success"
+                onclick="submitQuiz()"
+                style="display:none">
+            Submit
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+                       RESULT
+===================================================== -->
+
+<div id="resultPage"
+     class="container mt-5"
+     style="display:none">
+
+    <div class="card shadow text-center">
+
+        <div class="card-body">
+
+            <h2>Quiz Result</h2>
+
+            <hr>
+
+            <h4 id="resultStudent"></h4>
+
+            <p>
+                Exam:
+                <strong id="resultExam"></strong>
+            </p>
+
+            <h3>
+                Marks:
+                <span id="resultMarks"></span>
+            </h3>
+
+            <p>
+                Correct Answers:
+                <span id="correctAnswers"></span>
+            </p>
+
+            <p>
+                Total Questions:
+                <span id="totalQuestions"></span>
+            </p>
+
+            <p>
+                Percentage:
+                <span id="percentage"></span>%
+            </p>
+
+            <button class="btn btn-primary"
+                    onclick="showStudentDashboard()">
+                Dashboard
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+                    ADMIN DASHBOARD
+===================================================== -->
+
+<div id="adminDashboard"
+     class="container mt-4"
+     style="display:none">
+
+    <div class="dashboard-header">
+
+        <h2>Admin Dashboard</h2>
+
+        <button class="btn btn-danger"
+                onclick="logout()">
+            Logout
+        </button>
+
+    </div>
+
+    <hr>
+
+
+    <!-- CREATE EXAM -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-body">
+
+            <h4>Create Exam</h4>
+
+            <input type="text"
+                   id="examName"
+                   class="form-control mb-3"
+                   placeholder="Exam Name">
+
+            <input type="number"
+                   id="examDuration"
+                   class="form-control mb-3"
+                   placeholder="Duration in minutes">
+
+            <button class="btn btn-success"
+                    onclick="createExam()">
+                Create Exam
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- EXAMS -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-body">
+
+            <h4>Manage Exams</h4>
+
+            <div id="adminExamList"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- QUESTION EDITOR -->
+
+    <div id="questionEditor"
+         class="card shadow mb-4"
+         style="display:none">
+
+        <div class="card-body">
+
+            <h4>
+                Questions -
+                <span id="selectedExamName"></span>
+            </h4>
+
+            <hr>
+
+            <input type="text"
+                   id="questionInput"
+                   class="form-control mb-2"
+                   placeholder="Question">
+
+            <input type="text"
+                   id="option1"
+                   class="form-control mb-2"
+                   placeholder="Option 1">
+
+            <input type="text"
+                   id="option2"
+                   class="form-control mb-2"
+                   placeholder="Option 2">
+
+            <input type="text"
+                   id="option3"
+                   class="form-control mb-2"
+                   placeholder="Option 3">
+
+            <input type="text"
+                   id="option4"
+                   class="form-control mb-2"
+                   placeholder="Option 4">
+
+            <select id="correctAnswer"
+                    class="form-select mb-2">
+
+                <option value="0">
+                    Correct Option 1
+                </option>
+
+                <option value="1">
+                    Correct Option 2
+                </option>
+
+                <option value="2">
+                    Correct Option 3
+                </option>
+
+                <option value="3">
+                    Correct Option 4
+                </option>
+
+            </select>
+
+            <input type="number"
+                   id="marks"
+                   value="1"
+                   min="1"
+                   class="form-control mb-3"
+                   placeholder="Marks">
+
+            <button class="btn btn-primary"
+                    onclick="addQuestion()">
+                Add Question
+            </button>
+
+            <hr>
+
+            <div id="questionList"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- STUDENT RESULTS -->
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <h4>Student Results</h4>
+
+            <div id="resultList"></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+                    JAVASCRIPT
+===================================================== -->
+
+<script>
+
+    /* =================================================
+                     GLOBAL VARIABLES
+    ================================================= */
+
+    let exams =
+        JSON.parse(sessionStorage.getItem("exams")) || [];
+
+    let currentExam = null;
+
+    let currentQuestion = 0;
+
+    let answers = [];
+
+    let timerInterval;
+
+
+    /* =================================================
+                  DEFAULT EXAM
+    ================================================= */
+
+    if (exams.length === 0) {
+
+        exams = [
+
+            {
+                id: Date.now(),
+
+                name: "JavaScript Basics",
+
+                duration: 5,
+
+                questions: [
+
+                    {
+                        question:
+                            "Which language is used to make webpages interactive?",
+
+                        options: [
+                            "HTML",
+                            "CSS",
+                            "JavaScript",
+                            "SQL"
+                        ],
+
+                        correct: 2,
+
+                        marks: 1
+                    },
+
+                    {
+                        question:
+                            "Which keyword is used to declare a variable?",
+
+                        options: [
+                            "var",
+                            "int",
+                            "string",
+                            "define"
+                        ],
+
+                        correct: 0,
+
+                        marks: 1
+                    },
+
+                    {
+                        question:
+                            "Which symbol is used for a single-line comment?",
+
+                        options: [
+                            "//",
+                            "##",
+                            "<!-- -->",
+                            "**"
+                        ],
+
+                        correct: 0,
+
+                        marks: 1
+                    }
+
+                ]
+            }
+
+        ];
+
+        saveExams();
+    }
+
+
+    /* =================================================
+                    PAGE CONTROL
+    ================================================= */
+
+    function hideAll() {
+
+        document.getElementById("loginPage").style.display = "none";
+
+        document.getElementById("studentDashboard").style.display = "none";
+
+        document.getElementById("instructionsPage").style.display = "none";
+
+        document.getElementById("quizPage").style.display = "none";
+
+        document.getElementById("resultPage").style.display = "none";
+
+        document.getElementById("adminDashboard").style.display = "none";
+    }
+
+
+    /* =================================================
+                  LOGIN TYPE
+    ================================================= */
+
+    function studentLoginPage() {
+
+        document.getElementById("studentLogin").style.display = "block";
+
+        document.getElementById("adminLogin").style.display = "none";
+    }
+
+
+    function adminLoginPage() {
+
+        document.getElementById("studentLogin").style.display = "none";
+
+        document.getElementById("adminLogin").style.display = "block";
+    }
+
+
+    /* =================================================
+                   STUDENT LOGIN
+    ================================================= */
+
+    function studentLogin() {
+
+        let name =
+            document.getElementById("studentName").value.trim();
+
+        let id =
+            document.getElementById("studentId").value.trim();
+
+
+        if (name === "" || id === "") {
+
+            alert("Please enter student name and ID.");
+
+            return;
+        }
+
+
+        sessionStorage.setItem("role", "student");
+
+        sessionStorage.setItem("studentName", name);
+
+        sessionStorage.setItem("studentId", id);
+
+
+        showStudentDashboard();
+    }
+
+
+    /* =================================================
+                     ADMIN LOGIN
+    ================================================= */
+
+    function adminLogin() {
+
+        let username =
+            document.getElementById("adminUsername").value;
+
+        let password =
+            document.getElementById("adminPassword").value;
+
+
+        if (
+            username === "admin" &&
+            password === "admin123"
+        ) {
+
+            sessionStorage.setItem("role", "admin");
+
+            showAdminDashboard();
+
+        } else {
+
+            alert("Invalid username or password.");
+
+        }
+    }
+
+
+    /* =================================================
+                  STUDENT DASHBOARD
+    ================================================= */
+
+    function showStudentDashboard() {
+
+        hideAll();
+
+        document.getElementById("studentDashboard").style.display = "block";
+
+        exams =
+            JSON.parse(sessionStorage.getItem("exams")) || [];
+
+        let list =
+            document.getElementById("examList");
+
+        list.innerHTML = "";
+
+
+        if (exams.length === 0) {
+
+            list.innerHTML =
+                "<p>No exams available.</p>";
+
+            return;
+        }
+
+
+        exams.forEach(function(exam) {
+
+            list.innerHTML += `
+
+                <div class="border rounded p-3 mb-3">
+
+                    <h5>${exam.name}</h5>
+
+                    <p>
+                        Questions:
+                        ${exam.questions.length}
+                    </p>
+
+                    <p>
+                        Duration:
+                        ${exam.duration} minutes
+                    </p>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="showInstructions(${exam.id})">
+
+                        Attend Exam
+
+                    </button>
+
+                </div>
+            `;
+        });
+    }
+
+
+    /* =================================================
+                     INSTRUCTIONS
+    ================================================= */
+
+    function showInstructions(id) {
+
+        currentExam =
+            exams.find(exam => exam.id === id);
+
+
+        hideAll();
+
+        document.getElementById("instructionsPage").style.display = "block";
+
+        document.getElementById("instructionTitle").innerText =
+            currentExam.name;
+    }
+
+
+    /* =================================================
+                       START QUIZ
+    ================================================= */
+
+    function startQuiz() {
+
+        if (currentExam.questions.length === 0) {
+
+            alert("This exam has no questions.");
+
+            return;
+        }
+
+
+        hideAll();
+
+        document.getElementById("quizPage").style.display = "block";
+
+
+        currentQuestion = 0;
+
+
+        answers =
+            new Array(currentExam.questions.length).fill(null);
+
+
+        sessionStorage.setItem(
+            "currentExam",
+            JSON.stringify(currentExam)
+        );
+
+        sessionStorage.setItem(
+            "answers",
+            JSON.stringify(answers)
+        );
+
+        sessionStorage.setItem(
+            "currentQuestion",
+            "0"
+        );
+
+
+        document.getElementById("quizTitle").innerText =
+            currentExam.name;
+
+
+        startTimer();
+
+        displayQuestion();
+    }
+
+
+    /* =================================================
+                   DISPLAY QUESTION
+    ================================================= */
+
+    function displayQuestion() {
+
+        let question =
+            currentExam.questions[currentQuestion];
+
+
+        document.getElementById("questionNumber").innerText =
+            "Question " +
+            (currentQuestion + 1) +
+            " of " +
+            currentExam.questions.length;
+
+
+        document.getElementById("questionText").innerText =
+            question.question;
+
+
+        let options =
+            document.getElementById("options");
+
+        options.innerHTML = "";
+
+
+        question.options.forEach(function(option, index) {
+
+            let selected =
+                answers[currentQuestion] === index
+                    ? "checked"
+                    : "";
+
+
+            options.innerHTML += `
+
+                <div class="option">
+
+                    <label class="w-100">
+
+                        <input
+                            type="radio"
+                            name="answer"
+                            value="${index}"
+                            ${selected}
+                            onchange="selectAnswer(${index})">
+
+                        ${option}
+
+                    </label>
+
+                </div>
+            `;
+        });
+
+
+        document.getElementById("previousBtn").disabled =
+            currentQuestion === 0;
+
+
+        if (
+            currentQuestion ===
+            currentExam.questions.length - 1
+        ) {
+
+            document.getElementById("nextBtn").style.display =
+                "none";
+
+            document.getElementById("submitBtn").style.display =
+                "block";
+
+        } else {
+
+            document.getElementById("nextBtn").style.display =
+                "block";
+
+            document.getElementById("submitBtn").style.display =
+                "none";
+        }
+
+
+        let progress =
+            ((currentQuestion + 1) /
+            currentExam.questions.length) * 100;
+
+
+        document.getElementById("progressBar").style.width =
+            progress + "%";
+    }
+
+
+    /* =================================================
+                    SELECT ANSWER
+    ================================================= */
+
+    function selectAnswer(index) {
+
+        answers[currentQuestion] = index;
+
+        sessionStorage.setItem(
+            "answers",
+            JSON.stringify(answers)
+        );
+    }
+
+
+    /* =================================================
+                     NEXT
+    ================================================= */
+
+    function nextQuestion() {
+
+        if (
+            currentQuestion <
+            currentExam.questions.length - 1
+        ) {
+
+            currentQuestion++;
+
+            sessionStorage.setItem(
+                "currentQuestion",
+                currentQuestion
+            );
+
+            displayQuestion();
+        }
+    }
+
+
+    /* =================================================
+                    PREVIOUS
+    ================================================= */
+
+    function previousQuestion() {
+
+        if (currentQuestion > 0) {
+
+            currentQuestion--;
+
+            sessionStorage.setItem(
+                "currentQuestion",
+                currentQuestion
+            );
+
+            displayQuestion();
+        }
+    }
+
+
+    /* =================================================
+                       TIMER
+    ================================================= */
+
+    function startTimer() {
+
+        clearInterval(timerInterval);
+
+
+        let seconds =
+            currentExam.duration * 60;
+
+
+        sessionStorage.setItem(
+            "quizTimer",
+            seconds
+        );
+
+
+        timerInterval =
+            setInterval(function() {
+
+                let minutes =
+                    Math.floor(seconds / 60);
+
+                let remainingSeconds =
+                    seconds % 60;
+
+
+                document.getElementById("timer").innerText =
+
+                    String(minutes).padStart(2, "0")
+                    + ":" +
+                    String(remainingSeconds).padStart(2, "0");
+
+
+                sessionStorage.setItem(
+                    "quizTimer",
+                    seconds
+                );
+
+
+                if (seconds <= 0) {
+
+                    clearInterval(timerInterval);
+
+                    alert(
+                        "Time is over. Quiz submitted automatically."
+                    );
+
+                    submitQuiz();
+
+                    return;
+                }
+
+
+                seconds--;
+
+            }, 1000);
+    }
+
+
+    /* =================================================
+                    SUBMIT QUIZ
+    ================================================= */
+
+    function submitQuiz() {
+
+        clearInterval(timerInterval);
+
+
+        let score = 0;
+
+        let correct = 0;
+
+        let totalMarks = 0;
+
+
+        currentExam.questions.forEach(
+            function(question, index) {
+
+                totalMarks += question.marks;
+
+
+                if (
+                    answers[index] ===
+                    question.correct
+                ) {
+
+                    score += question.marks;
+
+                    correct++;
+                }
+
+            }
+        );
+
+
+        let result = {
+
+            studentName:
+                sessionStorage.getItem("studentName"),
+
+            studentId:
+                sessionStorage.getItem("studentId"),
+
+            exam:
+                currentExam.name,
+
+            score:
+                score,
+
+            totalMarks:
+                totalMarks,
+
+            correct:
+                correct,
+
+            total:
+                currentExam.questions.length
+        };
+
+
+        let results =
+            JSON.parse(
+                sessionStorage.getItem("results")
+            ) || [];
+
+
+        results.push(result);
+
+
+        sessionStorage.setItem(
+            "results",
+            JSON.stringify(results)
+        );
+
+
+        showResult(result);
+    }
+
+
+    /* =================================================
+                      SHOW RESULT
+    ================================================= */
+
+    function showResult(result) {
+
+        hideAll();
+
+        document.getElementById("resultPage").style.display = "block";
+
+
+        document.getElementById("resultStudent").innerText =
+            result.studentName +
+            " (" +
+            result.studentId +
+            ")";
+
+
+        document.getElementById("resultExam").innerText =
+            result.exam;
+
+
+        document.getElementById("resultMarks").innerText =
+            result.score +
+            " / " +
+            result.totalMarks;
+
+
+        document.getElementById("correctAnswers").innerText =
+            result.correct;
+
+
+        document.getElementById("totalQuestions").innerText =
+            result.total;
+
+
+        let percentage =
+            (result.score / result.totalMarks) * 100;
+
+
+        document.getElementById("percentage").innerText =
+            percentage.toFixed(2);
+    }
+
+
+    /* =================================================
+                    ADMIN DASHBOARD
+    ================================================= */
+
+    function showAdminDashboard() {
+
+        hideAll();
+
+        document.getElementById("adminDashboard").style.display =
+            "block";
+
+        displayAdminExams();
+
+        displayResults();
+    }
+
+
+    /* =================================================
+                      CREATE EXAM
+    ================================================= */
+
+    function createExam() {
+
+        let name =
+            document.getElementById("examName").value.trim();
+
+        let duration =
+            parseInt(
+                document.getElementById("examDuration").value
+            );
+
+
+        if (
+            name === "" ||
+            !duration ||
+            duration <= 0
+        ) {
+
+            alert("Enter valid exam details.");
+
+            return;
+        }
+
+
+        let exam = {
+
+            id: Date.now(),
+
+            name: name,
+
+            duration: duration,
+
+            questions: []
+
+        };
+
+
+        exams.push(exam);
+
+        saveExams();
+
+
+        document.getElementById("examName").value = "";
+
+        document.getElementById("examDuration").value = "";
+
+
+        displayAdminExams();
+
+
+        alert("Exam created successfully.");
+    }
+
+
+    /* =================================================
+                   DISPLAY ADMIN EXAMS
+    ================================================= */
+
+    function displayAdminExams() {
+
+        let list =
+            document.getElementById("adminExamList");
+
+        list.innerHTML = "";
+
+
+        exams.forEach(function(exam) {
+
+            list.innerHTML += `
+
+                <div class="border rounded p-3 mb-3">
+
+                    <h5>${exam.name}</h5>
+
+                    <p>
+                        Duration:
+                        ${exam.duration} minutes
+                    </p>
+
+                    <p>
+                        Questions:
+                        ${exam.questions.length}
+                    </p>
+
+
+                    <button
+                        class="btn btn-primary btn-sm"
+                        onclick="manageQuestions(${exam.id})">
+
+                        Manage Questions
+
+                    </button>
+
+
+                    <button
+                        class="btn btn-danger btn-sm"
+                        onclick="deleteExam(${exam.id})">
+
+                        Delete
+
+                    </button>
+
+                </div>
+            `;
+        });
+    }
+
+
+    /* =================================================
+                      DELETE EXAM
+    ================================================= */
+
+    function deleteExam(id) {
+
+        if (!confirm("Delete this exam?")) {
+            return;
+        }
+
+
+        exams =
+            exams.filter(
+                exam => exam.id !== id
+            );
+
+
+        saveExams();
+
+        displayAdminExams();
+    }
+
+
+    /* =================================================
+                  MANAGE QUESTIONS
+    ================================================= */
+
+    function manageQuestions(id) {
+
+        currentExam =
+            exams.find(exam => exam.id === id);
+
+
+        document.getElementById("questionEditor").style.display =
+            "block";
+
+
+        document.getElementById("selectedExamName").innerText =
+            currentExam.name;
+
+
+        displayQuestions();
+    }
+
+
+    /* =================================================
+                    ADD QUESTION
+    ================================================= */
+
+    function addQuestion() {
+
+        let question =
+            document.getElementById("questionInput").value.trim();
+
+
+        let options = [
+
+            document.getElementById("option1").value.trim(),
+
+            document.getElementById("option2").value.trim(),
+
+            document.getElementById("option3").value.trim(),
+
+            document.getElementById("option4").value.trim()
+
+        ];
+
+
+        let correct =
+            parseInt(
+                document.getElementById("correctAnswer").value
+            );
+
+
+        let marks =
+            parseInt(
+                document.getElementById("marks").value
+            );
+
+
+        if (
+            question === "" ||
+            options.some(option => option === "")
+        ) {
+
+            alert("Please fill all fields.");
+
+            return;
+        }
+
+
+        currentExam.questions.push({
+
+            question: question,
+
+            options: options,
+
+            correct: correct,
+
+            marks: marks || 1
+
+        });
+
+
+        saveExams();
+
+
+        clearQuestionForm();
+
+        displayQuestions();
+
+        displayAdminExams();
+
+
+        alert("Question added.");
+    }
+
+
+    /* =================================================
+                   DISPLAY QUESTIONS
+    ================================================= */
+
+    function displayQuestions() {
+
+        let list =
+            document.getElementById("questionList");
+
+        list.innerHTML = "";
+
+
+        currentExam.questions.forEach(
+            function(question, index) {
+
+                list.innerHTML += `
+
+                    <div class="border rounded p-3 mb-3">
+
+                        <strong>
+                            Q${index + 1}.
+                            ${question.question}
+                        </strong>
+
+                        <ol type="A">
+
+                            ${question.options.map(
+                                option =>
+                                `<li>${option}</li>`
+                            ).join("")}
+
+                        </ol>
+
+                        <p>
+                            Correct:
+                            ${question.options[question.correct]}
+                        </p>
+
+                        <p>
+                            Marks:
+                            ${question.marks}
+                        </p>
+
+                        <button
+                            class="btn btn-danger btn-sm"
+                            onclick="deleteQuestion(${index})">
+
+                            Delete
+
+                        </button>
+
+                    </div>
+                `;
+            }
+        );
+    }
+
+
+    /* =================================================
+                   DELETE QUESTION
+    ================================================= */
+
+    function deleteQuestion(index) {
+
+        if (!confirm("Delete this question?")) {
+            return;
+        }
+
+
+        currentExam.questions.splice(index, 1);
+
+        saveExams();
+
+        displayQuestions();
+
+        displayAdminExams();
+    }
+
+
+    /* =================================================
+                    SAVE EXAMS
+    ================================================= */
+
+    function saveExams() {
+
+        sessionStorage.setItem(
+            "exams",
+            JSON.stringify(exams)
+        );
+    }
+
+
+    /* =================================================
+                 CLEAR QUESTION FORM
+    ================================================= */
+
+    function clearQuestionForm() {
+
+        document.getElementById("questionInput").value = "";
+
+        document.getElementById("option1").value = "";
+
+        document.getElementById("option2").value = "";
+
+        document.getElementById("option3").value = "";
+
+        document.getElementById("option4").value = "";
+
+        document.getElementById("marks").value = 1;
+    }
+
+
+    /* =================================================
+                    STUDENT RESULTS
+    ================================================= */
+
+    function displayResults() {
+
+        let results =
+            JSON.parse(
+                sessionStorage.getItem("results")
+            ) || [];
+
+
+        let list =
+            document.getElementById("resultList");
+
+
+        if (results.length === 0) {
+
+            list.innerHTML =
+                "<p>No student results yet.</p>";
+
+            return;
+        }
+
+
+        let table = `
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Student</th>
+
+                            <th>ID</th>
+
+                            <th>Exam</th>
+
+                            <th>Marks</th>
+
+                            <th>Correct</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+        `;
+
+
+        results.forEach(function(result) {
+
+            table += `
+
+                <tr>
+
+                    <td>
+                        ${result.studentName}
+                    </td>
+
+                    <td>
+                        ${result.studentId}
+                    </td>
+
+                    <td>
+                        ${result.exam}
+                    </td>
+
+                    <td>
+                        ${result.score}/${result.totalMarks}
+                    </td>
+
+                    <td>
+                        ${result.correct}/${result.total}
+                    </td>
+
+                </tr>
+
+            `;
+        });
+
+
+        table += `
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        `;
+
+
+        list.innerHTML = table;
+    }
+
+
+    /* =================================================
+                       LOGOUT
+    ================================================= */
+
+    function logout() {
+
+        clearInterval(timerInterval);
+
+        sessionStorage.clear();
+
+        location.reload();
+    }
+
+
+    /* =================================================
+                  PAGE LOAD
+    ================================================= */
+
+    window.onload = function() {
+
+        let role =
+            sessionStorage.getItem("role");
+
+
+        if (role === "student") {
+
+            showStudentDashboard();
+
+        }
+
+        else if (role === "admin") {
+
+            showAdminDashboard();
+
+        }
+
+        else {
+
+            hideAll();
+
+            document.getElementById("loginPage").style.display =
+                "block";
+        }
+
+    };
+
+</script>
+
+</body>
+</html>
